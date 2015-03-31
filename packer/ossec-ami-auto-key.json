@@ -1,0 +1,32 @@
+{
+	"variables": {
+		"aws_access_key": "",
+		"aws_secret_key": ""
+	},
+	"builders": [{
+		"type": "amazon-ebs",
+		"access_key": "{{user `aws_access_key`}}",
+		"secret_key": "{{user `aws_secret_key`}}",
+		"region": "eu-west-1",
+		"source_ami": "ami-d4c0f7bc",
+		"instance_type": "t2.micro",
+		"ssh_username": "ubuntu",
+		"ami_name": "ossec-ami-auto-key {{timestamp}}",
+		"ssh_username": "ubuntu"
+	}],
+	"provisioners": [{
+		"execute_command": "sudo -S sh '{{ .Path }}'",
+		"type": "shell",
+		"script": "scripts/build-ossec.sh"
+	},
+	{
+		"type": "file",
+		"source": "scripts/initial-setup-ossec.sh",
+		"destination": "/tmp/initial-setup.sh"
+	},
+	{
+		"type": "shell",
+		"inline": ["sudo cp /tmp/initial-setup.sh /var/ossec/bin/initial-setup.sh", "sudo chmod a+x /var/ossec/bin/initial-setup.sh"]
+	}
+	]
+}
